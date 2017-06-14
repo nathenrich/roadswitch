@@ -1,29 +1,71 @@
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
+const int buttonPin = 2;    // the number of the pushbutton pin
+const int ledPin1 = 3;      // the number of the LED pin
+const int ledPin2 = 4;      // the number of the LED pin
+const int ledPin3 = 0;      // the number of the LED pin
+const int ledPin4 = 1;      // the number of the LED
 
-  Most Arduinos have an on-board LED you can control. On the Uno and
-  Leonardo, it is attached to digital pin 13. If you're unsure what
-  pin the on-board LED is connected to on your Arduino model, check
-  the documentation at http://www.arduino.cc
+// Variables will change:
+int ledState1 = HIGH;         // the current state of the output pin
+int ledState2 = LOW;
+int buttonState;             // the current reading from the input pin
+int lastButtonState = LOW;   // the previous reading from the input pin
 
-  This example code is in the public domain.
+// the following variables are long's because the time, measured in miliseconds,
+// will quickly become a bigger number than can be stored in an int.
+long lastDebounceTime = 0;  // the last time the output pin was toggled
+long debounceDelay = 80;    // the debounce time; increase if the output flickers
 
-  modified 8 May 2014
-  by Scott Fitzgerald
- */
-
-
-// the setup function runs once when you press reset or power the board
 void setup() {
-  // initialize digital pin 13 as an output.
-  pinMode(13, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  pinMode(ledPin1, OUTPUT);
+  pinMode(ledPin2, OUTPUT);
+  pinMode(ledPin3, OUTPUT);
+  pinMode(ledPin4, OUTPUT);
+
+  // somthing extra
+
+  // set initial LED state
+  digitalWrite(ledPin1, ledState1);
 }
 
-// the loop function runs over and over again forever
 void loop() {
-  digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);              // wait for a second
-  digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);              // wait for a second
+  // read the state of the switch into a local variable:
+  int reading = digitalRead(buttonPin);
+
+  // check to see if you just pressed the button
+  // (i.e. the input went from LOW to HIGH),  and you've waited
+  // long enough since the last press to ignore any noise:
+
+  // If the switch changed, due to noise or pressing:
+  if (reading != lastButtonState) {
+    // reset the debouncing timer
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (reading != buttonState) {
+      buttonState = reading;
+
+      // only toggle the LED if the new button state is HIGH
+      if (buttonState == HIGH) {
+        ledState1 = !ledState1;
+        ledState2 = !ledState2;
+      }
+    }
+  }
+
+  // set the LED:
+  digitalWrite(ledPin1, ledState1);
+  digitalWrite(ledPin2, ledState2);
+
+  digitalWrite(ledPin3, ledState1);
+  digitalWrite(ledPin4, ledState2);
+
+  // save the reading.  Next time through the loop,
+  // it'll be the lastButtonState:
+  lastButtonState = reading;
 }
